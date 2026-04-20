@@ -1,0 +1,10 @@
+# Runtime dependencies for Lambda / SAM build.
+# Pin ranges; let sam build resolve final versions for the Lambda layer.
+fastapi>=0.115.0
+mangum>=0.19.0
+slowapi>=0.1.9
+openai>=2.24.0
+pypdf>=6.7.5
+python-dotenv>=1.2.2
+requests>=2.32.5
+pydantic>=2.9.0
