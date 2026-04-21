@@ -97,7 +97,7 @@ Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new ver
 4. `slowapi` IP rate limit (10/min on `X-Forwarded-For`)
 5. Pydantic validation (message 1–500 chars, history last 10 turns)
 6. `max_tokens: 400` per OpenAI call
-7. 30s request timeout
+7. Layered timeouts (Lambda 15s, app 13s, OpenAI client 12s)
 8. Model pinned via `OPENAI_MODEL`
 9. OpenAI monthly budget cap — set manually in dashboard
 10. CloudWatch 30-day log retention + CloudWatch Alarm on >5 Lambda errors / 5 min

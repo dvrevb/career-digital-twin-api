@@ -15,7 +15,7 @@ TOOL_REGISTRY = {
 
 class Me:
     def __init__(self) -> None:
-        self.client = AsyncOpenAI(timeout=30.0)
+        self.client = AsyncOpenAI(timeout=12.0)
         self.name = os.getenv("YOUR_NAME", "the professional")
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         self.max_tokens = int(os.getenv("MAX_RESPONSE_TOKENS", "400"))

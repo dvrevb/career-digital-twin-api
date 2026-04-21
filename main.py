@@ -97,7 +97,7 @@ async def chat(
 
     try:
         reply, tokens_used, model = await asyncio.wait_for(
-            me.chat_async(body.message, history), timeout=30.0
+            me.chat_async(body.message, history), timeout=13.0
         )
     except asyncio.TimeoutError:
         log.warning('"timeout","ip":"%s"', ip)
