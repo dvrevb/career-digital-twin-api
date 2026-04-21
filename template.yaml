@@ -67,8 +67,8 @@ Resources:
         AllowHeaders: [Content-Type, X-Internal-Key, X-Forwarded-For]
         MaxAge: 300
       DefaultRouteSettings:
-        ThrottlingBurstLimit: 20
-        ThrottlingRateLimit: 10
+        ThrottlingBurstLimit: 5
+        ThrottlingRateLimit: 2
       AccessLogSettings:
         DestinationArn: !GetAtt ApiAccessLogs.Arn
         Format: >-
@@ -88,7 +88,7 @@ Resources:
       FunctionName: !Sub career-twin-${AWS::StackName}
       CodeUri: .
       Handler: main.handler
-      ReservedConcurrentExecutions: 10
+      ReservedConcurrentExecutions: 2
       LoggingConfig:
         LogGroup: !Ref FunctionLogs
       Environment:
