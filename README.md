@@ -93,14 +93,15 @@ Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new ver
 
 1. `X-Internal-Key` shared secret (app-level, constant-time compare)
 2. CORS allowlist at API Gateway
-3. API Gateway default throttling (burst 20 / rate 10)
+3. API Gateway default throttling (burst 5 / rate 2 rps)
 4. `slowapi` IP rate limit (10/min on `X-Forwarded-For`)
 5. Pydantic validation (message 1–500 chars, history last 10 turns)
 6. `max_tokens: 400` per OpenAI call
 7. Layered timeouts (Lambda 15s, app 13s, OpenAI client 12s)
-8. Model pinned via `OPENAI_MODEL`
-9. OpenAI monthly budget cap — set manually in dashboard
-10. CloudWatch 30-day log retention + CloudWatch Alarm on >5 Lambda errors / 5 min
+8. Lambda reserved concurrency capped at 2
+9. Model pinned via `OPENAI_MODEL`
+10. OpenAI monthly budget cap — set manually in dashboard
+11. CloudWatch 30-day log retention + CloudWatch Alarm on >5 Lambda errors / 5 min
 
 ## Out of scope for v1
 
