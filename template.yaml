@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/httpapi/career-twin-${AWS::StackName}
-      RetentionInDays: 30
+      RetentionInDays: 7
 
   ChatFunction:
     Type: AWS::Serverless::Function
@@ -134,7 +134,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/career-twin-${AWS::StackName}
-      RetentionInDays: 30
+      RetentionInDays: 7
 
   HighErrorRateAlarm:
     Type: AWS::CloudWatch::Alarm
