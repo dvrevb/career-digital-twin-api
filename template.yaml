@@ -55,7 +55,7 @@ Resources:
   ChatApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: prod
+      StageName: $default
       Domain:
         DomainName: !Ref CustomDomainName
         CertificateArn: !Ref AcmCertificateArn
