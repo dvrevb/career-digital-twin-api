@@ -61,7 +61,7 @@ SCOPE - WHAT YOU CAN ANSWER:
 Only questions DIRECTLY about {self.name}'s professional background:
 - Career, experience, projects, skills, certifications
 - Technical background and expertise
-- Basic identity (name, title)
+- Basic identity (name, age, current role and employer, location, spoken languages)
 
 REFUSE everything else: general knowledge, definitions, how-to guides, science, history.
 
