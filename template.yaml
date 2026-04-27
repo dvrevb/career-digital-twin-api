@@ -76,7 +76,6 @@ Resources:
       FunctionName: !Sub career-twin-${AWS::StackName}
       CodeUri: .
       Handler: main.handler
-      ReservedConcurrentExecutions: 2
       LoggingConfig:
         LogGroup: !Ref FunctionLogs
       Environment:
