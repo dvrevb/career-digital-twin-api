@@ -12,6 +12,30 @@ from mangum import Mangum
 from openai import APIError, APITimeoutError
 from slowapi.errors import RateLimitExceeded
 
+load_dotenv(override=False)
+
+
+def _bootstrap_ssm_secrets() -> None:
+    if not os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        return
+    import boto3
+
+    name_to_env = {
+        os.environ["OPENAI_KEY_PARAM"]: "OPENAI_API_KEY",
+        os.environ["INTERNAL_KEY_PARAM"]: "INTERNAL_API_KEY",
+        os.environ["PUSHOVER_USER_PARAM"]: "PUSHOVER_USER_KEY",
+        os.environ["PUSHOVER_TOKEN_PARAM"]: "PUSHOVER_API_TOKEN",
+    }
+    resp = boto3.client("ssm").get_parameters(
+        Names=list(name_to_env), WithDecryption=True
+    )
+    for p in resp["Parameters"]:
+        os.environ[name_to_env[p["Name"]]] = p["Value"]
+
+
+_bootstrap_ssm_secrets()
+
+
 from guardrails import (
     RATE_LIMIT,
     ChatRequest,
@@ -22,8 +46,6 @@ from guardrails import (
     truncate_history,
 )
 from me_agent import Me
-
-load_dotenv(override=False)
 
 log = logging.getLogger("career_twin")
 logging.basicConfig(

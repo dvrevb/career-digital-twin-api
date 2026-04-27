@@ -88,10 +88,10 @@ Resources:
           MAX_MESSAGE_LENGTH: !Ref MaxMessageLength
           MAX_HISTORY_TURNS: !Ref MaxHistoryTurns
           MAX_RESPONSE_TOKENS: !Ref MaxResponseTokens
-          OPENAI_API_KEY: !Sub "{{resolve:ssm-secure:${OpenAiKeyParam}:1}}"
-          INTERNAL_API_KEY: !Sub "{{resolve:ssm-secure:${InternalKeyParam}:1}}"
-          PUSHOVER_USER_KEY: !Sub "{{resolve:ssm-secure:${PushoverUserParam}:1}}"
-          PUSHOVER_API_TOKEN: !Sub "{{resolve:ssm-secure:${PushoverTokenParam}:1}}"
+          OPENAI_KEY_PARAM: !Ref OpenAiKeyParam
+          INTERNAL_KEY_PARAM: !Ref InternalKeyParam
+          PUSHOVER_USER_PARAM: !Ref PushoverUserParam
+          PUSHOVER_TOKEN_PARAM: !Ref PushoverTokenParam
       Policies:
         - Version: "2012-10-17"
           Statement:
