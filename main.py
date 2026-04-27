@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import time
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, status
@@ -90,7 +89,6 @@ async def chat(
     body: ChatRequest,
     _auth: None = Depends(require_internal_key),
 ):
-    start = time.perf_counter()
     ip = client_ip(request)
     history = truncate_history(body.history)
     me = get_me()
@@ -109,14 +107,6 @@ async def chat(
         log.error('"openai_error","ip":"%s","err":"%s"', ip, str(e))
         raise HTTPException(status_code=502, detail="upstream error") from None
 
-    latency_ms = int((time.perf_counter() - start) * 1000)
-    log.info(
-        '"chat_ok","ip":"%s","tokens":%d,"latency_ms":%d,"model":"%s"',
-        ip,
-        tokens_used,
-        latency_ms,
-        model,
-    )
     return ChatResponse(reply=reply, tokens_used=tokens_used, model=model)
 
 
