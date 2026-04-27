@@ -47,6 +47,7 @@ Thumbs.db
 
 # AWS SAM
 .aws-sam/
+samconfig.toml
 samconfig.toml.local
 
 # Personal knowledge base (never commit)
