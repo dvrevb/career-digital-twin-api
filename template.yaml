@@ -69,18 +69,6 @@ Resources:
       DefaultRouteSettings:
         ThrottlingBurstLimit: 5
         ThrottlingRateLimit: 2
-      AccessLogSettings:
-        DestinationArn: !GetAtt ApiAccessLogs.Arn
-        Format: >-
-          {"requestId":"$context.requestId","ip":"$context.identity.sourceIp",
-          "path":"$context.path","status":"$context.status",
-          "latency":"$context.responseLatency"}
-
-  ApiAccessLogs:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub /aws/httpapi/career-twin-${AWS::StackName}
-      RetentionInDays: 7
 
   ChatFunction:
     Type: AWS::Serverless::Function
@@ -134,13 +122,13 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/career-twin-${AWS::StackName}
-      RetentionInDays: 7
+      RetentionInDays: 5
 
   HighErrorRateAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub career-twin-${AWS::StackName}-5xx
-      AlarmDescription: Lambda 5xx rate above 5% for 5 minutes
+      AlarmName: !Sub career-twin-${AWS::StackName}-errors
+      AlarmDescription: More than 5 Lambda errors in a 5-minute window
       MetricName: Errors
       Namespace: AWS/Lambda
       Statistic: Sum

@@ -101,7 +101,7 @@ Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new ver
 8. Lambda reserved concurrency capped at 2
 9. Model pinned via `OPENAI_MODEL`
 10. OpenAI monthly budget cap — set manually in dashboard
-11. CloudWatch 30-day log retention + CloudWatch Alarm on >5 Lambda errors / 5 min
+11. CloudWatch 5-day log retention (Lambda only; API Gateway access logs disabled) + CloudWatch Alarm on >5 Lambda errors / 5 min
 
 ## Out of scope for v1
 
