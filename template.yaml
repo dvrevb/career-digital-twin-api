@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: career-digital-twin-api — FastAPI on Lambda behind HTTP API v2
+
+Parameters:
+  CustomDomainName:
+    Type: String
+    Default: api.burakcevik.dev
+    Description: Custom domain for the HTTP API
+  AcmCertificateArn:
+    Type: String
+    Description: ARN of the ACM certificate for CustomDomainName (same region as Lambda)
+  OpenAiModel:
+    Type: String
+    Default: gpt-4o-mini
+  AllowedOrigins:
+    Type: String
+    Default: https://burakcevik.dev,http://localhost:3000
+  YourName:
+    Type: String
+    Default: "Burak Çevik"
+  RateLimitPerMinute:
+    Type: String
+    Default: "10"
+  MaxMessageLength:
+    Type: String
+    Default: "500"
+  MaxHistoryTurns:
+    Type: String
+    Default: "10"
+  MaxResponseTokens:
+    Type: String
+    Default: "400"
+  OpenAiKeyParam:
+    Type: String
+    Default: /career-twin/openai-api-key
+  InternalKeyParam:
+    Type: String
+    Default: /career-twin/internal-api-key
+  PushoverUserParam:
+    Type: String
+    Default: /career-twin/pushover-user-key
+  PushoverTokenParam:
+    Type: String
+    Default: /career-twin/pushover-api-token
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 15
+    MemorySize: 512
+    Architectures: [x86_64]
+
+Resources:
+  ChatApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      Domain:
+        DomainName: !Ref CustomDomainName
+        CertificateArn: !Ref AcmCertificateArn
+        EndpointConfiguration: REGIONAL
+        SecurityPolicy: TLS_1_2
+      CorsConfiguration:
+        AllowOrigins: !Split [",", !Ref AllowedOrigins]
+        AllowMethods: [GET, POST, OPTIONS]
+        AllowHeaders: [Content-Type, X-Internal-Key, X-Forwarded-For]
+        MaxAge: 300
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 5
+        ThrottlingRateLimit: 2
+
+  ChatFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub career-twin-${AWS::StackName}
+      CodeUri: .
+      Handler: main.handler
+      LoggingConfig:
+        LogGroup: !Ref FunctionLogs
+      Environment:
+        Variables:
+          OPENAI_MODEL: !Ref OpenAiModel
+          ALLOWED_ORIGINS: !Ref AllowedOrigins
+          YOUR_NAME: !Ref YourName
+          RATE_LIMIT_PER_MINUTE: !Ref RateLimitPerMinute
+          MAX_MESSAGE_LENGTH: !Ref MaxMessageLength
+          MAX_HISTORY_TURNS: !Ref MaxHistoryTurns
+          MAX_RESPONSE_TOKENS: !Ref MaxResponseTokens
+          OPENAI_KEY_PARAM: !Ref OpenAiKeyParam
+          INTERNAL_KEY_PARAM: !Ref InternalKeyParam
+          PUSHOVER_USER_PARAM: !Ref PushoverUserParam
+          PUSHOVER_TOKEN_PARAM: !Ref PushoverTokenParam
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource:
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAiKeyParam}
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${InternalKeyParam}
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${PushoverUserParam}
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${PushoverTokenParam}
+      Events:
+        Chat:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatApi
+            Path: /chat
+            Method: POST
+        Health:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatApi
+            Path: /health
+            Method: GET
+
+  FunctionLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/career-twin-${AWS::StackName}
+      RetentionInDays: 5
+
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub career-twin-${AWS::StackName}-errors
+      AlarmDescription: More than 5 Lambda errors in a 5-minute window
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ChatFunction
+      TreatMissingData: notBreaching
+
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API default endpoint (use as CNAME target at Porkbun)
+    Value: !Sub ${ChatApi}.execute-api.${AWS::Region}.amazonaws.com
+  CustomDomainTarget:
+    Description: Regional domain name to CNAME api.burakcevik.dev to (from API Gateway custom domain)
+    Value: !GetAtt ChatApi.DomainName.RegionalDomainName
+  CustomDomainHostedZoneId:
+    Description: Hosted zone ID of the regional domain (not needed with Porkbun, for reference)
+    Value: !GetAtt ChatApi.DomainName.RegionalHostedZoneId
