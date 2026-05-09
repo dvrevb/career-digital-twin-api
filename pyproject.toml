@@ -28,4 +28,6 @@ asyncio_mode = "auto"
 filterwarnings = [
     "error::DeprecationWarning",
     "error::PendingDeprecationWarning",
+    # slowapi calls asyncio.iscoroutinefunction at import on Python 3.14+; not our bug
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
 ]
