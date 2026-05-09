@@ -102,10 +102,9 @@ Rotating a secret? Overwrite the value in SSM (same parameter name). `_bootstrap
 5. Pydantic validation (message 1–500 chars, history last 10 turns)
 6. `max_tokens: 400` per OpenAI call
 7. Layered timeouts (Lambda 15s, app 13s, OpenAI client 12s)
-8. Lambda reserved concurrency capped at 2
-9. Model pinned via `OPENAI_MODEL`
-10. OpenAI monthly budget cap — set manually in dashboard
-11. CloudWatch 5-day log retention (Lambda only; API Gateway access logs disabled) + CloudWatch Alarm on >5 Lambda errors / 5 min
+8. Model pinned via `OPENAI_MODEL`
+9. OpenAI monthly budget cap — set manually in dashboard
+10. CloudWatch 5-day log retention (Lambda only; API Gateway access logs disabled) + CloudWatch Alarm on >5 Lambda errors / 5 min
 
 ## Out of scope for v1
 
