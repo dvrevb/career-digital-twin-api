@@ -91,7 +91,7 @@ DNS lives at **Porkbun**. Two CNAME records go there: one for ACM cert validatio
 7. `curl https://api.burakcevik.dev/health` → 200.
 8. Copy the `INTERNAL_API_KEY` value into the Next.js Vercel env vars.
 
-Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new version and redeploy — CloudFormation caches version pins.
+Rotating a secret? Overwrite the value in SSM (same parameter name). `_bootstrap_ssm_secrets` in `main.py` re-fetches at every Lambda cold start, so the new value is picked up without a redeploy — force a refresh by either waiting for natural cold start or republishing the function.
 
 ## Guardrails
 
