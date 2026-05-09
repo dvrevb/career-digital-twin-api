@@ -25,6 +25,8 @@ def _bootstrap_ssm_secrets() -> None:
         os.environ["INTERNAL_KEY_PARAM"]: "INTERNAL_API_KEY",
         os.environ["PUSHOVER_USER_PARAM"]: "PUSHOVER_USER_KEY",
         os.environ["PUSHOVER_TOKEN_PARAM"]: "PUSHOVER_API_TOKEN",
+        os.environ["TELEGRAM_BOT_TOKEN_PARAM"]: "TELEGRAM_BOT_TOKEN",
+        os.environ["TELEGRAM_CHAT_ID_PARAM"]: "TELEGRAM_CHAT_ID",
     }
     resp = boto3.client("ssm").get_parameters(
         Names=list(name_to_env), WithDecryption=True

@@ -63,7 +63,7 @@ curl -X POST http://localhost:8000/chat \
 main.py          FastAPI app, routes, Mangum handler
 me_agent.py      Me class — async chat with tool-call loop
 tools.py         record_user_details, record_unknown_question + OpenAI schemas
-notification.py  Pushover push helper
+notification.py  push() dispatcher → Telegram or Pushover (toggle via USE_TELEGRAM_NOTIFICATIONS)
 guardrails.py    rate limit, Pydantic validation, API key dep
 me/              knowledge base (linkedin.pdf + summary.txt — gitignored)
 template.yaml    AWS SAM: Lambda + HTTP API v2 + custom domain
@@ -76,18 +76,21 @@ DNS lives at **Porkbun**. Two CNAME records go there: one for ACM cert validatio
 
 1. Request an ACM certificate for `api.burakcevik.dev` in the same region you'll deploy Lambda (e.g. `eu-central-1`). Validation method: DNS.
 2. Add the ACM validation CNAME at Porkbun. Wait for "Issued".
-3. Put secrets in SSM Parameter Store (SecureString, all version 1):
+3. Put secrets in SSM Parameter Store (SecureString). Always required:
    - `/career-twin/openai-api-key`
    - `/career-twin/internal-api-key` — generate 32 random chars
-   - `/career-twin/pushover-user-key`
-   - `/career-twin/pushover-api-token`
+
+   Notification channel is selected by the `USE_TELEGRAM_NOTIFICATIONS` template parameter (default `true`). Create only the active channel's params; the inactive ones can be skipped — `push()` no-ops when its credentials are missing.
+
+   - Telegram (default): `/career-twin/telegram-bot-token` (from BotFather), `/career-twin/telegram-chat-id` (message the bot, then `getUpdates`)
+   - Pushover (toggle = `false`): `/career-twin/pushover-user-key`, `/career-twin/pushover-api-token`
 4. Set a $10 monthly hard cap on your OpenAI key (OpenAI dashboard → Billing → Usage limits).
-5. `sam build && sam deploy --guided` — pass the ACM cert ARN as `AcmCertificateArn`.
+5. `sam build && sam deploy --guided` for the first deploy (saves answers to `samconfig.toml`); after that just `sam build && sam deploy`. Pass the ACM cert ARN as `AcmCertificateArn`.
 6. SAM outputs `CustomDomainTarget` — CNAME `api.burakcevik.dev` → that value at Porkbun.
 7. `curl https://api.burakcevik.dev/health` → 200.
 8. Copy the `INTERNAL_API_KEY` value into the Next.js Vercel env vars.
 
-Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new version and redeploy — CloudFormation caches version pins.
+Rotating a secret? Overwrite the value in SSM (same parameter name). `_bootstrap_ssm_secrets` in `main.py` re-fetches at every Lambda cold start, so the new value is picked up without a redeploy — force a refresh by either waiting for natural cold start or republishing the function.
 
 ## Guardrails
 
@@ -98,10 +101,9 @@ Rotating a secret in SSM? Bump the `:1` suffix in `template.yaml` to the new ver
 5. Pydantic validation (message 1–500 chars, history last 10 turns)
 6. `max_tokens: 400` per OpenAI call
 7. Layered timeouts (Lambda 15s, app 13s, OpenAI client 12s)
-8. Lambda reserved concurrency capped at 2
-9. Model pinned via `OPENAI_MODEL`
-10. OpenAI monthly budget cap — set manually in dashboard
-11. CloudWatch 5-day log retention (Lambda only; API Gateway access logs disabled) + CloudWatch Alarm on >5 Lambda errors / 5 min
+8. Model pinned via `OPENAI_MODEL`
+9. OpenAI monthly budget cap — set manually in dashboard
+10. CloudWatch 5-day log retention (Lambda only; API Gateway access logs disabled) + CloudWatch Alarm on >5 Lambda errors / 5 min
 
 ## Out of scope for v1
 
