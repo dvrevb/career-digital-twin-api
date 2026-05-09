@@ -63,7 +63,7 @@ curl -X POST http://localhost:8000/chat \
 main.py          FastAPI app, routes, Mangum handler
 me_agent.py      Me class — async chat with tool-call loop
 tools.py         record_user_details, record_unknown_question + OpenAI schemas
-notification.py  Pushover push helper
+notification.py  push() dispatcher → Telegram or Pushover (toggle via USE_TELEGRAM_NOTIFICATIONS)
 guardrails.py    rate limit, Pydantic validation, API key dep
 me/              knowledge base (linkedin.pdf + summary.txt — gitignored)
 template.yaml    AWS SAM: Lambda + HTTP API v2 + custom domain
@@ -81,6 +81,10 @@ DNS lives at **Porkbun**. Two CNAME records go there: one for ACM cert validatio
    - `/career-twin/internal-api-key` — generate 32 random chars
    - `/career-twin/pushover-user-key`
    - `/career-twin/pushover-api-token`
+   - `/career-twin/telegram-bot-token` — from BotFather
+   - `/career-twin/telegram-chat-id` — your own chat ID (message the bot, then `getUpdates`)
+
+   Notification channel is selected by the `USE_TELEGRAM_NOTIFICATIONS` template parameter (default `true`). The unused provider's params can be left empty — `push()` no-ops when its credentials are missing.
 4. Set a $10 monthly hard cap on your OpenAI key (OpenAI dashboard → Billing → Usage limits).
 5. `sam build && sam deploy --guided` — pass the ACM cert ARN as `AcmCertificateArn`.
 6. SAM outputs `CustomDomainTarget` — CNAME `api.burakcevik.dev` → that value at Porkbun.
