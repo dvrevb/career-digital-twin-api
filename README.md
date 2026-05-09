@@ -85,7 +85,7 @@ DNS lives at **Porkbun**. Two CNAME records go there: one for ACM cert validatio
    - Telegram (default): `/career-twin/telegram-bot-token` (from BotFather), `/career-twin/telegram-chat-id` (message the bot, then `getUpdates`)
    - Pushover (toggle = `false`): `/career-twin/pushover-user-key`, `/career-twin/pushover-api-token`
 4. Set a $10 monthly hard cap on your OpenAI key (OpenAI dashboard → Billing → Usage limits).
-5. `sam build && sam deploy --guided` — pass the ACM cert ARN as `AcmCertificateArn`.
+5. `sam build && sam deploy --guided` for the first deploy (saves answers to `samconfig.toml`); after that just `sam build && sam deploy`. Pass the ACM cert ARN as `AcmCertificateArn`.
 6. SAM outputs `CustomDomainTarget` — CNAME `api.burakcevik.dev` → that value at Porkbun.
 7. `curl https://api.burakcevik.dev/health` → 200.
 8. Copy the `INTERNAL_API_KEY` value into the Next.js Vercel env vars.
