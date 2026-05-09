@@ -43,6 +43,16 @@ Parameters:
   PushoverTokenParam:
     Type: String
     Default: /career-twin/pushover-api-token
+  TelegramBotTokenParam:
+    Type: String
+    Default: /career-twin/telegram-bot-token
+  TelegramChatIdParam:
+    Type: String
+    Default: /career-twin/telegram-chat-id
+  UseTelegramNotifications:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
 
 Globals:
   Function:
@@ -91,6 +101,9 @@ Resources:
           INTERNAL_KEY_PARAM: !Ref InternalKeyParam
           PUSHOVER_USER_PARAM: !Ref PushoverUserParam
           PUSHOVER_TOKEN_PARAM: !Ref PushoverTokenParam
+          TELEGRAM_BOT_TOKEN_PARAM: !Ref TelegramBotTokenParam
+          TELEGRAM_CHAT_ID_PARAM: !Ref TelegramChatIdParam
+          USE_TELEGRAM_NOTIFICATIONS: !Ref UseTelegramNotifications
       Policies:
         - Version: "2012-10-17"
           Statement:
@@ -103,6 +116,8 @@ Resources:
                 - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${InternalKeyParam}
                 - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${PushoverUserParam}
                 - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${PushoverTokenParam}
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${TelegramBotTokenParam}
+                - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${TelegramChatIdParam}
       Events:
         Chat:
           Type: HttpApi
