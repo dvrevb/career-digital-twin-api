@@ -76,15 +76,14 @@ DNS lives at **Porkbun**. Two CNAME records go there: one for ACM cert validatio
 
 1. Request an ACM certificate for `api.burakcevik.dev` in the same region you'll deploy Lambda (e.g. `eu-central-1`). Validation method: DNS.
 2. Add the ACM validation CNAME at Porkbun. Wait for "Issued".
-3. Put secrets in SSM Parameter Store (SecureString, all version 1):
+3. Put secrets in SSM Parameter Store (SecureString). Always required:
    - `/career-twin/openai-api-key`
    - `/career-twin/internal-api-key` — generate 32 random chars
-   - `/career-twin/pushover-user-key`
-   - `/career-twin/pushover-api-token`
-   - `/career-twin/telegram-bot-token` — from BotFather
-   - `/career-twin/telegram-chat-id` — your own chat ID (message the bot, then `getUpdates`)
 
-   Notification channel is selected by the `USE_TELEGRAM_NOTIFICATIONS` template parameter (default `true`). The unused provider's params can be left empty — `push()` no-ops when its credentials are missing.
+   Notification channel is selected by the `USE_TELEGRAM_NOTIFICATIONS` template parameter (default `true`). Create only the active channel's params; the inactive ones can be skipped — `push()` no-ops when its credentials are missing.
+
+   - Telegram (default): `/career-twin/telegram-bot-token` (from BotFather), `/career-twin/telegram-chat-id` (message the bot, then `getUpdates`)
+   - Pushover (toggle = `false`): `/career-twin/pushover-user-key`, `/career-twin/pushover-api-token`
 4. Set a $10 monthly hard cap on your OpenAI key (OpenAI dashboard → Billing → Usage limits).
 5. `sam build && sam deploy --guided` — pass the ACM cert ARN as `AcmCertificateArn`.
 6. SAM outputs `CustomDomainTarget` — CNAME `api.burakcevik.dev` → that value at Porkbun.
